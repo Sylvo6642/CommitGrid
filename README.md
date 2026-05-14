@@ -1,14 +1,33 @@
-# commitgrid
+# CommitGrid
 
 [![npm version](https://badge.fury.io/js/commitgrid.svg)](https://www.npmjs.com/package/commitgrid)
+[![npm downloads](https://img.shields.io/npm/dm/commitgrid.svg)](https://www.npmjs.com/package/commitgrid)
+[![license](https://img.shields.io/npm/l/commitgrid.svg)](https://github.com/Sylvo6642/CommitGrid/blob/main/LICENSE)
 
-A React component that renders an animated GitHub-style contributions heatmap. You fetch the data, it handles the rendering.
+> Animated GitHub-style contributions heatmap for React. You fetch the data — it handles the rendering.
+
+---
+
+## Features
+
+- Spring-scale entry animation on scroll into view
+- Count-up animation on the total contributions number
+- Animated ping ring on today's cell
+- Pulsing glow on high-activity cells
+- Dark / light / auto theme support
+- Fully customizable colors — per theme or from a single seed color
+- Square, rounded, or circle cell shapes
+- Zero config — works out of the box
+
+---
 
 ## Install
 
 ```bash
 npm install commitgrid framer-motion
 ```
+
+---
 
 ## Usage
 
@@ -17,6 +36,8 @@ import { GitHubContributionsGraph } from 'commitgrid';
 
 <GitHubContributionsGraph data={contributionData} />
 ```
+
+---
 
 ## Data shape
 
@@ -27,12 +48,14 @@ The component expects this format — which matches the GitHub GraphQL API respo
   totalContributions: number;
   weeks: {
     contributionDays: {
-      date: string;        // "2024-01-15"
+      date: string;           // "2024-01-15"
       contributionCount: number;
     }[];
   }[];
 }
 ```
+
+---
 
 ## Fetching from GitHub
 
@@ -65,7 +88,9 @@ const { data } = await res.json();
 const contributionData = data.user.contributionsCollection.contributionCalendar;
 ```
 
-> Don't expose your GitHub token on the frontend. Run this fetch on a server or edge function and pass the result as a prop.
+> **Note:** Never expose your GitHub token on the frontend. Run this fetch on a server or edge function and pass the result as a prop.
+
+---
 
 ## Props
 
@@ -75,9 +100,9 @@ const contributionData = data.user.contributionsCollection.contributionCalendar;
 |---|---|---|---|
 | `data` | `ContributionData` | required | Contribution data to render |
 | `theme` | `"dark" \| "light" \| "auto"` | `"auto"` | `"auto"` watches the `dark` class on `<html>` |
-| `darkColors` | `[string, string, string, string, string]` | purple scale | 5 colors from empty to most active (dark mode) |
-| `lightColors` | `[string, string, string, string, string]` | purple scale | 5 colors from empty to most active (light mode) |
-| `seedColor` | `string` | — | Single color to auto-generate both `darkColors` and `lightColors`. Overridden by explicit scales. |
+| `darkColors` | `[string, string, string, string, string]` | purple scale | 5 colors from empty → most active (dark mode) |
+| `lightColors` | `[string, string, string, string, string]` | purple scale | 5 colors from empty → most active (light mode) |
+| `seedColor` | `string` | — | Single color to auto-generate both scales. Overridden by explicit scales. |
 | `cellSize` | `number` | `13` | Cell size in px |
 | `cellGap` | `number` | `3` | Gap between cells in px |
 | `cellShape` | `"square" \| "rounded" \| "circle"` | `"square"` | Shape of each cell |
@@ -89,16 +114,18 @@ const contributionData = data.user.contributionsCollection.contributionCalendar;
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `animate` | `boolean` | `true` | Spring-scale entry animation when the grid scrolls into view |
-| `countUp` | `boolean` | `true` | Animate the total contributions number from 0 → real value |
+| `animate` | `boolean` | `true` | Spring-scale entry animation on scroll into view |
+| `countUp` | `boolean` | `true` | Animate total contributions from 0 → real value |
 | `todayIndicator` | `boolean` | `true` | Animated ping ring on the latest day's cell |
-| `pulseHighActivity` | `boolean` | `true` | Subtle breathing glow on the most-active (level 4) cells |
-| `pulseIntensity` | `number` | `2` | Glow strength. `0` = invisible, `2` = noticeable, `6` = dramatic |
+| `pulseHighActivity` | `boolean` | `true` | Breathing glow on the most-active cells |
+| `pulseIntensity` | `number` | `2` | Glow strength — `0` invisible, `2` noticeable, `6` dramatic |
 | `pulseDuration` | `number` | `2.4` | Pulse cycle length in seconds |
 | `todayIndicatorColor` | `string` | `COLORS[4]` | Override the today-indicator ring color |
 | `pulseColor` | `string` | `COLORS[4]` | Override the pulse glow color |
 
-All color props accept any valid CSS color: `#rgb`, `#rgba`, `#rrggbb`, `#rrggbbaa`, `rgb()`, `rgba()`, `hsl()`, `hsla()`, or named colors (`"cyan"`, `"tomato"`).
+All color props accept any valid CSS color: `#rgb`, `#rrggbb`, `rgb()`, `hsl()`, or named colors like `"cyan"`.
+
+---
 
 ## Custom colors
 
@@ -112,19 +139,21 @@ Pass a full 5-step scale for one or both themes:
 />
 ```
 
-Or pass a single `seedColor` and let the component derive both scales:
+Or use a single `seedColor` and let the component derive both scales automatically:
 
 ```tsx
 <GitHubContributionsGraph data={data} seedColor="#22d3ee" />
 ```
 
-You can also call the helper directly if you want to tweak the generated scales before passing them in:
+You can also call the helper directly to tweak the generated scales:
 
 ```tsx
-import { generateColorScales } from 'github-contributions-graph';
+import { generateColorScales } from 'commitgrid';
 
 const { dark, light } = generateColorScales('tomato');
 ```
+
+---
 
 ## Tuning animations
 
@@ -150,9 +179,13 @@ To disable all motion entirely:
 />
 ```
 
+---
+
 ## No framer-motion?
 
-Set `animate={false}` to skip the entry animation. framer-motion is still a peer dependency. For a fully static graph, also disable `todayIndicator` and `pulseHighActivity` (they use framer-motion for their loops). `countUp` is plain `requestAnimationFrame` and is independent.
+Set `animate={false}` to skip the entry animation. framer-motion is still a peer dependency. For a fully static graph, also disable `todayIndicator` and `pulseHighActivity` — they use framer-motion internally. `countUp` uses plain `requestAnimationFrame` and is independent.
+
+---
 
 ## License
 
